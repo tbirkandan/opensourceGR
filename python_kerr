@@ -1,0 +1,33 @@
+from gravipy import *
+#####################
+# Coordinates (\chi is the four-vector of coordinates)
+t, r, theta, phi, M, a, rhosq, Delta = symbols('t, r, theta, phi, M, a, rhosq, Delta') 
+x = Coordinates('\chi', [t, r, theta, phi])
+#####################
+# Metric tensor
+rhosq = r**2+(a**2)*cos(theta)**2
+Delta = r**2-2*M*r+a**2
+Metric = Matrix([[(1-(2*M*r)/rhosq),0,0,(2*a*M*r*sin(theta)**2)/rhosq],[0,-rhosq/Delta,0,0],[0,0,-rhosq,0],[(2*a*M*r*sin(theta)**2)/rhosq,0,0,-(sin(theta)**2)*((r**2+a**2)+(2*(a**2)*M*r*sin(theta)**2)/rhosq)]])
+g = MetricTensor('g', x, Metric)
+#####################
+# Christoffel symbols
+Ga = Christoffel('Ga', g)
+# Display all components
+print(Ga(All, All, All))
+# Display a single component
+print(Ga(1,2,1))
+#####################
+# Ricci tensor
+Ri = Ricci('Ri', g)
+# Display all components
+print(Ri(All, All))
+# Display a single component
+print(Ri(1, 2))
+#####################
+# Einstein tensor
+G = Einstein('G', Ri)
+# Display all components
+print(G(All, All))
+# Display a single component
+print(G(3, 3))
+#####################
