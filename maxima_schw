@@ -3,7 +3,7 @@ if get('ctensor,'version)=false then load(ctensor);
 (ratwtlvl:false,ratfac:true);
 ("Specify the dimension of the manifold and the coordinate labels.")$
 (dim:4,ct_coords:[t,r,theta,phi]);
-("Enter the metric.")$ (*@\label{schwmax1}@*)
+("Enter the metric.")$
 lg:matrix([(1-2*M/r),0,0,0],[0,-1/(1-2*M/r),0,0],[0,0,-r^2,0],[0,0,0,-(r^2)*sin(theta)^2]);
 ug:invert(lg)$
 ("Compute the Christoffel symbols and display all components")$
