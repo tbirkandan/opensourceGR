@@ -46,7 +46,7 @@ S=function('S')(th)
 Phi=exp(-I*omega*t)*exp(I*k*ph)*R*S
 
 # Calculating the Klein-Gordon equation:
-KG=0;
+KG=0
 for mu in range(len(BL[:])):
 	for nu in range(len(BL[:])):
 		KG=KG+diff((ginv[mu,nu].expr()*sqrtabsdetg*diff(Phi,BL[nu])),BL[mu])
