@@ -1,0 +1,130 @@
+reset()
+
+# Define 4-dim. the manifold "Man":
+Man = Manifold(4, 'Man', r'\mathcal{M}')
+
+# Define the parameter "M" (mass):
+M = var('M')
+
+# Define the coordinates {t=0, r=1, theta(=th)=2, phi=3} with ranges
+# (BL = Boyer-Lidquist)
+BL.<t,r,th,ph> = Man.chart(r't r:(0,+oo) th:(0,pi):\theta ph:(0,2*pi):\phi')
+
+# Define the metric "g" on manifold "Man":
+g = Man.lorentzian_metric('g')
+
+# Enter the Schwarzschild metric components:
+g[0,0] = (1-(2*M)/r)
+g[1,1] = -1/(1-(2*M)/r)
+g[2,2] = -r^2
+g[3,3] = -(r*sin(th))^2
+
+# Display the metric
+show('The Schwarzschild metric:')
+show(g.display())
+
+# Defining variables:
+var('omega,k,KG')
+
+# Inverse metric:
+ginv = g.inverse()
+
+# The square root of the absolute value 
+# of the metric determinant:
+sqrtabsdetg=g.sqrt_abs_det().expr()
+
+# The scalar function Phi(t,r,th,phi):
+# The dependence on all coordinates 
+# is provided by "(*BL)" 
+Phi=function('Phi')(*BL)
+
+# The scalar field Ansatz is given here.
+# R : Radial part,
+# S : Angular part
+R=function('R')(r)
+S=function('S')(th)
+Phi=exp(-I*omega*t)*exp(I*k*ph)*R*S
+
+# Calculating the Klein-Gordon equation:
+KG=0
+for mu in range(len(BL[:])):
+	for nu in range(len(BL[:])):
+		KG=KG+diff((ginv[mu,nu].expr()*sqrtabsdetg*diff(Phi,BL[nu])),BL[mu])
+
+# Displaying the Klein-Gordon equation "KG"
+show('The full Klein-Gordon equation (variable name is KG):')
+show(KG)
+
+# We can analyze the Klein-Gordon equation
+# to see how it is separated into
+# radial and angular parts.
+
+# Common factors will be divided
+# This part should be given by the user
+divideKGby=exp(-I*omega*t)*exp(I*k*ph)*sin(th)*R*S
+finalKG=expand(KG/divideKGby)
+
+# Extract the operands in the expression:
+fkgops=finalKG.operands()
+
+# Find radial and angular parts:
+# lambda_aux is the separation constant
+var('lambda_aux')
+KGradialpart=lambda_aux
+KGangularpart=-lambda_aux
+for term in fkgops:
+	if diff(term,r)==0: 
+		KGangularpart=KGangularpart+term
+	else: 
+		KGradialpart=KGradialpart+term
+
+KGradialpart=expand(KGradialpart*R).simplify_full().collect(R).collect(diff(R,r)).collect(diff(R,r,r))
+KGangularpart=expand(KGangularpart*S).simplify_full().collect(S).collect(diff(S,th)).collect(diff(S,th,th))
+
+show('The radial part (variable name is KGradialpart):')
+show(KGradialpart)
+show('The angular part (variable name is KGangularpart):')
+show(KGangularpart)
+
+# The auxiliary function
+R_aux=function('R_aux')(r)
+
+# Two auxiliary equations
+radial1aux=diff(R,r)-R_aux
+radial2aux=KGradialpart.subs(diff(R,r)==R_aux).subs(diff(R,r,r)==diff(R_aux,r))
+
+# Right hand sides of the derivatives
+radial1=(solve(radial1aux==0,diff(R,r)))[0].right()
+radial2=(solve(radial2aux==0,diff(R_aux,r)))[0].right()
+
+# Getting the outputs in input format
+# (Outputs will be copied)
+print(radial1)
+print(radial2)
+
+# Import the solver
+from sage.calculus.desolvers import desolve_system_rk4
+
+# Define unknowns as variables
+var('R,R_aux,r')
+
+# Define equations
+radial1=R_aux
+radial2=-(4*M^2*R_aux + 2*r^2*R_aux + 2*(lambda_aux*R - 3*r*R_aux)*M + (omega^2*r^3 - lambda_aux*r)*R)/(4*M^2*r - 4*M*r^2 + r^3)
+
+# Substitute numerical values for parameters
+radial2=radial2.subs(M=0.1,omega=0.2,k=2.0,lambda_aux=2.0)
+
+# Solve the system and plot the solution
+radsol=desolve_system_rk4([radial1,radial2],[R,R_aux],ics=[0.3,1,0.5],ivar=r,end_points=100,step=0.01)
+points=[[i,j] for i,j,k in radsol]
+radialsolution=list_plot(points,axes_labels=['$r$','$R$'],legend_label='Numerical solution')
+
+# Asymptotic form of the analytic solution
+var('Cl,L')
+Rasym=Cl*(1/r)*sin(omega*r+2*M*omega*log(r)-(L*pi/2)+arg(gamma(L+1-2*I*M*omega)))
+Rasymnum=Rasym.subs(Cl=250,M=0.1,omega=0.2,L=1.0)
+asympplot=plot(Rasymnum,(r, 20, 100),linestyle='',marker='x',color='red',legend_label='Asymptotic solution')
+
+# Display both plots
+show(asympplot+radialsolution)

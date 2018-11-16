@@ -1,0 +1,18 @@
+kill(all);
+if get('ctensor,'version)=false then load(ctensor);
+(ratwtlvl:false,ratfac:true);
+("Specify the dimension of the manifold and the coordinate labels.")$
+(dim:4,ct_coords:[t,r,theta,phi]);
+("Enter the metric.")$
+lg:matrix([(1-2*M/r),0,0,0],[0,-1/(1-2*M/r),0,0],[0,0,-r^2,0],[0,0,0,-(r^2)*sin(theta)^2]);
+ug:invert(lg)$
+("Compute the Christoffel symbols and display all components")$
+christof(mcs)$
+("Compute the Ricci tensor and display all components")$
+uricci(true)
+("Compute the Einstein tensor and display all components")$
+einstein(true);
+("Display single components")$
+mcs[1,1,2];
+ric[1,2];
+ein[2,2];
