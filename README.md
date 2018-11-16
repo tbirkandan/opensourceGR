@@ -3,4 +3,4 @@ Codes for the article "Symbolic and Numerical Analysis in General Relativity wit
 
 https://arxiv.org/abs/1703.09738
 
-The master branch is empty in this repository. The codes are available in git branches. The user should switch to the appropriate branch from the "Branch: ..." menu. For example, for the SageMath codes, the "Branch: master" should be changed as "Branch: SageMath" from the dropdown menu.
+The codes are also available in git branches. The user should switch to the appropriate branch from the "Branch: ..." menu. For example, for the SageMath codes, the "Branch: master" should be changed as "Branch: SageMath" from the dropdown menu.
